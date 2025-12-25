@@ -159,13 +159,13 @@
 
   <body>
     <!-- AUDIO -->
-    <audio id="myAudio" src="/music/ques.mp3" loop></audio>
+    <audio id="myAudio" src="music/ques.mp3" loop></audio>
 
     <!-- ===== SCREEN 1 ===== -->
     <div class="container" id="questionScreen">
       <img
         id="mainImage"
-        src="/question/images/heart.png"
+        src="question/images/heart.png"
         alt="heart image"
       />
       <h1>TRƯỚC HẾT: BẠN LONG CÓ ĐẸP ZAI KHONG?</h1>
@@ -179,7 +179,7 @@
     <!-- ===== SCREEN 2 ===== -->
     <div class="yes-screen" id="yesScreen">
       <h1 class="yes-text">Hehhe lại chả ( >᎑<)♡︎ᐝ</h1>
-      <img src="/question/images/hug.png" class="yes-image" alt="hug image" />
+      <img src="question/images/hug.png" class="yes-image" alt="hug image" />
       <button class="next-btn" id="nextBtn">Đi tiếp</button>
     </div>
 
@@ -233,10 +233,10 @@
           noBtn.innerText = noTexts[clickCount - 1];
         }
 
-        if (clickCount === 1) mainImage.src = "/question/images/shocked.png";
-        if (clickCount === 2) mainImage.src = "/question/images/think.png";
-        if (clickCount === 3) mainImage.src = "/question/images/angry.png";
-        if (clickCount === 4) mainImage.src = "/question/images/crying.png";
+        if (clickCount === 1) mainImage.src = "question/images/shocked.png";
+        if (clickCount === 2) mainImage.src = "question/images/think.png";
+        if (clickCount === 3) mainImage.src = "question/images/angry.png";
+        if (clickCount === 4) mainImage.src = "question/images/crying.png";
       });
 
       /* NÚT CÓ */
@@ -264,7 +264,7 @@
       nextBtn.addEventListener("click", () => {
         fadeOutAudio(audio, 1500);
         setTimeout(() => {
-          window.location.href = "/merry/index.html";
+          window.location.href = "merry.html";
         }, 1500);
       });
     </script>
