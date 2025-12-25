@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Có một câu hỏi nhỏ</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        background: #fff0f5;
+        overflow: hidden;
+      }
+
+      /* ===== SCREEN 1 ===== */
+      .container {
+        text-align: center;
+        padding-top: 80px;
+      }
+
+      img {
+        width: 200px;
+        transition: transform 0.3s;
+      }
+
+      .buttons {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      button {
+        padding: 12px 30px;
+        font-size: 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        position: relative;
+      }
+
+      #yes {
+        background-color: #ff6b81;
+        color: white;
+        transition: transform 0.3s;
+        z-index: 2;
+      }
+
+      #no {
+        background-color: #ddd;
+        transition: transform 0.3s;
+        z-index: 1;
+      }
+
+      /* ===== SCREEN 2 ===== */
+      .yes-screen {
+        position: fixed;
+        inset: 0;
+        background: #fff0f5;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.8s ease;
+      }
+
+      .yes-screen.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .yes-text {
+        font-size: 28px;
+        margin-bottom: 20px;
+        animation: fadeIn 1s ease forwards;
+      }
+
+      .yes-image {
+        width: 220px;
+        opacity: 0;
+        animation: popIn 0.8s ease forwards;
+        animation-delay: 0.4s;
+      }
+
+      .next-btn {
+        margin-top: 40px;
+        padding: 12px 40px;
+        font-size: 20px;
+        background-color: #ff6b81;
+        color: white;
+        border-radius: 12px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideUp 0.8s ease forwards;
+        animation-delay: 1s;
+      }
+
+      /* ===== ANIMATION ===== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.6);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ===== SCREEN SHAKE ===== */
+      @keyframes screenShake {
+        0% {
+          transform: translate(0, 0);
+        }
+        20% {
+          transform: translate(-6px, 4px);
+        }
+        40% {
+          transform: translate(6px, -4px);
+        }
+        60% {
+          transform: translate(-4px, -6px);
+        }
+        80% {
+          transform: translate(4px, 6px);
+        }
+        100% {
+          transform: translate(0, 0);
+        }
+      }
+
+      .shake {
+        animation: screenShake 0.4s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- AUDIO -->
+    <audio id="myAudio" src="/music/ques.mp3" loop></audio>
+
+    <!-- ===== SCREEN 1 ===== -->
+    <div class="container" id="questionScreen">
+      <img
+        id="mainImage"
+        src="/question/images/heart.png"
+        alt="heart image"
+      />
+      <h1>TRƯỚC HẾT: BẠN LONG CÓ ĐẸP ZAI KHONG?</h1>
+
+      <div class="buttons">
+        <button id="yes">Cóaa</button>
+        <button id="no">hông</button>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 2 ===== -->
+    <div class="yes-screen" id="yesScreen">
+      <h1 class="yes-text">Hehhe lại chả ( >᎑<)♡︎ᐝ</h1>
+      <img src="/question/images/hug.png" class="yes-image" alt="hug image" />
+      <button class="next-btn" id="nextBtn">Đi tiếp</button>
+    </div>
+
+    <script>
+      const audio = document.getElementById("myAudio");
+      const yesBtn = document.getElementById("yes");
+      const noBtn = document.getElementById("no");
+      const mainImage = document.getElementById("mainImage");
+      const questionScreen = document.getElementById("questionScreen");
+      const yesScreen = document.getElementById("yesScreen");
+      const nextBtn = document.getElementById("nextBtn");
+
+      let clickCount = 0;
+
+      const noTexts = [
+        "Không tin",
+        "Thử lại đi",
+        "chọn sai gòi",
+        "SAIIII!!!! :(",
+        "CHON LAIII",
+        "DJT ME BAM CAI BEN KIA:)",
+        
+      ];
+
+      /* Cho phép nhạc chạy sau click đầu */
+      document.body.addEventListener(
+        "click",
+        () => {
+          audio.volume = 1;
+          audio.play().catch(() => {});
+        },
+        { once: true }
+      );
+
+      /* NÚT KHÔNG */
+      noBtn.addEventListener("click", () => {
+        /* RUNG TOÀN MÀN HÌNH */
+        document.body.classList.remove("shake");
+        void document.body.offsetWidth;
+        document.body.classList.add("shake");
+
+        clickCount++;
+
+        yesBtn.style.transform = `scale(${1 + clickCount * 0.35})`;
+        noBtn.style.transform = `translateX(${Math.min(
+          clickCount * 40,
+          200
+        )}px)`;
+
+        if (clickCount <= noTexts.length) {
+          noBtn.innerText = noTexts[clickCount - 1];
+        }
+
+        if (clickCount === 1) mainImage.src = "/question/images/shocked.png";
+        if (clickCount === 2) mainImage.src = "/question/images/think.png";
+        if (clickCount === 3) mainImage.src = "/question/images/angry.png";
+        if (clickCount === 4) mainImage.src = "/question/images/crying.png";
+      });
+
+      /* NÚT CÓ */
+      yesBtn.addEventListener("click", () => {
+        questionScreen.style.display = "none";
+        yesScreen.classList.add("show");
+      });
+
+      /* FADE OUT NHẠC */
+      function fadeOutAudio(audio, duration = 1500) {
+        const stepTime = 50;
+        const steps = duration / stepTime;
+        const step = audio.volume / steps;
+
+        const fade = setInterval(() => {
+          audio.volume = Math.max(0, audio.volume - step);
+          if (audio.volume <= 0) {
+            clearInterval(fade);
+            audio.pause();
+          }
+        }, stepTime);
+      }
+
+      /* ĐI TIẾP */
+      nextBtn.addEventListener("click", () => {
+        fadeOutAudio(audio, 1500);
+        setTimeout(() => {
+          window.location.href = "/merry/index.html";
+        }, 1500);
+      });
+    </script>
+  </body>
+</html>

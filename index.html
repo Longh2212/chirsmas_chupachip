@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Merry x-mas</title>
+  <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+  <div id="startOverlay">
+    <div class="start-text">Bắt đầu →</div>
+  </div>
+
+  <audio id="myAudio" src="/music/start.mp3" loop></audio>
+  <canvas id="canvas"></canvas>
+  <div id="rotateNotice" style="display:none;">
+    <div class="overlay">
+      <p>Vui lòng xoay màn hình sang ngang để có trải nghiệm tốt nhất 🌟</p>
+    </div>
+  </div>
+
+  <img id="bear" src="https://i.pinimg.com/originals/e5/c5/4c/e5c54cd43fd75a7ec5b7cf0f65838ec3.gif" alt="Bear" />
+
+  <!-- Nút cố định dưới cùng màn hình -->
+  <button id="nextBtn" onclick="location.href='/question/index.html'" class="fixed-btn" style="display:none;">Tiếp nè --></button>
+
+
+  <script src="./style/script.js"></script>
+</body>
+</html>
