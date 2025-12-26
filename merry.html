@@ -489,28 +489,69 @@
         } else if (type === "PHOTO") {
           const group = new THREE.Group();
           const tex = customTex || createDefaultPhoto();
+
+          // === THÊM ĐOẠN NÀY ĐỂ LẤY ASPECT RATIO ===
+          const img = tex.image;
+          let aspect = 1;
+          if (img && img.naturalWidth && img.naturalHeight) {
+            aspect = img.naturalWidth / img.naturalHeight;
+          } else {
+            // fallback nếu texture chưa load xong (hiếm xảy ra vì load xong mới gọi)
+            aspect = tex.image.width / tex.image.height || 1;
+          }
+
+          // Giới hạn aspect để tránh quá dài hoặc quá hẹp
+          aspect = Math.max(0.5, Math.min(aspect, 2.0));
+
+          // Kích thước cơ bản của khung (chiều rộng cố định, chiều cao theo aspect)
+          const baseWidth = 1.0;
+          const baseHeight = baseWidth / aspect;
+
+          // Tạo geometry động theo aspect
+          const geoFrameDynamic = new THREE.BoxGeometry(
+            baseWidth,
+            baseHeight,
+            0.05
+          );
+          const geoPhotoPlaneDynamic = new THREE.PlaneGeometry(
+            baseWidth * 0.8,
+            baseHeight * 0.8
+          );
+
+          // Material ảnh
           const matPhoto = new THREE.MeshStandardMaterial({
             map: tex,
             side: THREE.DoubleSide,
             roughness: 0.6,
             metalness: 0.1,
           });
-          const photoMesh = new THREE.Mesh(geoPhotoPlane, matPhoto);
-          photoMesh.position.z = 0.03;
-          const frameMesh = new THREE.Mesh(geoFrame, matPhotoFrame);
 
-          // Add Invisible Hit Box
-          const hitMesh = new THREE.Mesh(geoHitPlane, matHitBox);
-          hitMesh.position.z = 0.05; // Slightly in front
+          const photoMesh = new THREE.Mesh(geoPhotoPlaneDynamic, matPhoto);
+          photoMesh.position.z = 0.03;
+
+          const frameMesh = new THREE.Mesh(geoFrameDynamic, matPhotoFrame);
+
+          // Hitbox lớn hơn một chút để dễ chọn
+          const geoHitPlaneDynamic = new THREE.PlaneGeometry(
+            baseWidth * 1.8,
+            baseHeight * 1.8
+          );
+          const hitMesh = new THREE.Mesh(geoHitPlaneDynamic, matHitBox);
+          hitMesh.position.z = 0.05;
           hitMesh.userData.isHitBox = true;
 
           group.add(frameMesh);
           group.add(photoMesh);
-          group.add(hitMesh); // Added as child
+          group.add(hitMesh);
 
           mesh = group;
           mesh.userData.isPhoto = true;
           photos.push(mesh);
+
+          // Lưu aspect và baseScale để dùng khi scale lên (FOCUS)
+          mesh.userData.aspect = aspect;
+          mesh.userData.baseWidth = baseWidth;
+          mesh.userData.baseHeight = baseHeight;
         } else if (type === "LIGHT") {
           mesh = new THREE.Mesh(geoSphere, matLightWarm);
           mesh.scale.setScalar(0.08 + Math.random() * 0.05);
@@ -933,7 +974,27 @@
           }
 
           p.position.lerp(targetPos, 0.08);
-          p.scale.lerp(targetScale, 0.08);
+          if (p.userData.isPhoto) {
+            // Đặc biệt cho ảnh: scale theo chiều rộng, giữ aspect
+            let desiredScale = 1.0;
+            if (STATE.mode === "FOCUS" && p === focusTarget) {
+              desiredScale = 4.5; // kích thước lớn khi focus
+            } else if (STATE.mode === "TEXT") {
+              desiredScale = 0.4;
+            } else {
+              desiredScale = 1.0;
+            }
+
+            const scaleX = desiredScale;
+            const scaleY =
+              desiredScale * (p.userData.baseWidth / p.userData.baseHeight); // giữ aspect
+            const scaleZ = desiredScale;
+
+            p.scale.lerp(new THREE.Vector3(scaleX, scaleY, scaleZ), 0.08);
+          } else {
+            // Các particle khác (star, light, ornament) dùng scale đồng đều
+            p.scale.lerp(targetScale, 0.08);
+          }
 
           if (STATE.mode !== "SCATTER") {
             p.rotation.x += (targetRot.x - p.rotation.x) * 0.1;
